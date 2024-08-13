@@ -24,6 +24,8 @@ class LessonScreen extends ConsumerStatefulWidget {
 
 class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool _isFavorite = false;
+  bool _isCollapsed = false;
+
   late ScrollController _scrollController;
 
   @override
@@ -112,13 +114,18 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   ),
                 ),
               ],
-              title: Text(lesson.title.baseText),
+              title: AnimatedOpacity(
+                opacity: _isCollapsed ? 1 : 0,
+                curve: Curves.easeInOut,
+                duration: const Duration(milliseconds: 200),
+                child: Text(lesson.title.baseText),
+              ),
             ),
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  LessonTitle(title: lesson.title),
+                  LessonTitle(key: _titleKey, title: lesson.title),
                   LessonHeadline(key: _headlineKeys[0], headline: 'Vocabulary'),
                   LessonVocabulary(
                     key: _bodyKeys[0],
@@ -215,12 +222,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   int _selectedIndex = 0;
   bool _isScrolling = false;
 
+  final GlobalKey _titleKey = GlobalKey();
   final List<GlobalKey> _headlineKeys = List.generate(4, (_) => GlobalKey());
   final List<GlobalKey> _bodyKeys = List.generate(4, (_) => GlobalKey());
 
   void _onScroll() {
     if (!_isScrolling) {
       _updateSelectedIndex();
+      _updateCollapsedState();
     }
   }
 
@@ -262,6 +271,19 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           return;
         }
       }
+    }
+  }
+
+  void _updateCollapsedState() {
+    final lessonTitleContext = _titleKey.currentContext;
+    if (lessonTitleContext != null) {
+      final lessonTitleBox = lessonTitleContext.findRenderObject() as RenderBox;
+      final lessonTitleOffset = lessonTitleBox.localToGlobal(Offset.zero);
+      final lessonTitleTop = lessonTitleOffset.dy;
+
+      setState(() {
+        _isCollapsed = lessonTitleTop < kToolbarHeight;
+      });
     }
   }
 
