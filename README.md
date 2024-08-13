@@ -21,7 +21,7 @@ Lexiverse is an immersive language learning app that transforms photos into less
 
 - Flutter SDK
 - Dart SDK
-- An IDE (e.g., Android Studio, VS Code)
+- An IDE (e.g. Android Studio, VS Code)
 - A Google Gemini API key
 
 ### Installation
